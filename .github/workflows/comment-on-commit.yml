@@ -1,0 +1,48 @@
+name: Ajouter Commentaire Automatique
+
+on:
+  workflow_run:
+    workflows: ["Générer Image et Déployer"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  comment-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloner le dépôt
+        uses: actions/checkout@v4
+
+      - name: Télécharger l'artefact
+        uses: actions/download-artifact@v4
+        with:
+          name: images-generees
+          path: ./artifacts/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Récupérer le nom de l'image et le message
+        run: |
+          MSG=$(git log -1 --pretty=%B | head -1)
+          IMAGE_NAME=$(ls ./artifacts/ | head -n 1)
+          echo "MESSAGE=$MSG" >> $GITHUB_ENV
+          echo "IMAGE_URL=https://lisinsau.github.io/devops-comment-commit/images/$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: Ajouter un commentaire sur le commit
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const message = process.env.MESSAGE;
+            const imageUrl = process.env.IMAGE_URL;
+            const body = `### ✅ Image Générée avec succès !\n\n**Message du commit :** ${message}\n\n![Image Générée](${imageUrl})`;
+            
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: body
+            });
