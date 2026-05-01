@@ -10,3 +10,7 @@
 
 ![Statut Génération](https://github.com/lisinsau/devops-badges/actions/workflows/generate-image.yml/badge.svg)
 ![Statut Commentaire](https://github.com/lisinsau/devops-badges/actions/workflows/comment-on-commit.yml/badge.svg)
+![Statut Badge](https://github.com/lisinsau/devops-badges/actions/workflows/update-badge.yml/badge.svg)
+
+## Statut du projet
+![Statut du projet](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/lisinsau/devops-badges/main/badges/badge.json)
